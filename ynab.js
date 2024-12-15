@@ -42,35 +42,53 @@ export default class YNAB {
 
   getCachedTransactionCount = () => Object.keys(this.transactions).length;
 
-  fetchTransactions = async (sinceDate = undefined) => {
-    const { transactions, server_knowledge } = (
-      await ynabAPI.transactions.getTransactions(
-        this.budget.id,
-        sinceDate ? sinceDate.toISOString().split("T")[0] : undefined,
-        undefined,
-        this.transactionsServerKnowledge
-      )
-    ).data;
+  fetchTransactions = async (
+    sinceDate = undefined,
+    transactionType = "unapproved"
+  ) => {
+    try {
+      console.log(`Fetching ${transactionType} transactions from YNAB...`);
+      const { transactions, server_knowledge } = (
+        await ynabAPI.transactions.getTransactions(
+          this.budget.id,
+          sinceDate ? sinceDate.toISOString().split("T")[0] : undefined,
+          transactionType,
+          this.transactionsServerKnowledge
+        )
+      ).data;
 
-    this.transactionsServerKnowledge = server_knowledge;
+      if (transactions.length === 0) {
+        console.error(`No ${transactionType} YNAB transactions found.`);
+        return;
+      } else {
+        console.log(
+          `Fetched ${transactions.length} ${transactionType} transactions.`
+        );
+      }
 
-    let newTransactionsCount = 0;
-    transactions
-      .filter(
-        (t) =>
-          t.payee_name.toLowerCase().includes("amazon") &&
-          (typeof t.memo !== "string" || t.memo.length == 0)
-      )
-      .forEach((t) => {
-        if (t.deleted && t.id in this.transactions) {
-          delete this.transactions[t.id];
-          console.log(`Deleting transaction: ${YNAB.prettyTransaction(t)}`);
-        } else {
-          this.transactions[t.id] = t;
-          newTransactionsCount++;
-          console.log(`Caching transaction: ${YNAB.prettyTransaction(t)}`);
-        }
-      });
+      this.transactionsServerKnowledge = server_knowledge;
+
+      let newTransactionsCount = 0;
+      transactions
+        .filter(
+          (t) =>
+            t.payee_name.toLowerCase().includes("amazon") &&
+            (typeof t.memo !== "string" || t.memo.length == 0)
+        )
+        .forEach((t) => {
+          if (t.deleted && t.id in this.transactions) {
+            delete this.transactions[t.id];
+            console.log(`Deleting transaction: ${YNAB.prettyTransaction(t)}`);
+          } else {
+            this.transactions[t.id] = t;
+            newTransactionsCount++;
+            console.log(`Caching transaction: ${YNAB.prettyTransaction(t)}`);
+          }
+        });
+      console.log(`Fetched ${newTransactionsCount} new YNAB transactions.`);
+    } catch (error) {
+      console.error("Error fetching YNAB transactions:", error);
+    }
   };
 
   matchTransactions = (orders) => {

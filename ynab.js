@@ -151,7 +151,7 @@ export default class YNAB {
         const transaction = this.transactions[id];
         transaction.memo = memo;
         console.log(
-          `Adding memo "${memo} to ${YNAB.prettyTransaction(transaction)}`
+          `Adding memo "${memo}" to ${YNAB.prettyTransaction(transaction)}`
         );
         return {
           id,

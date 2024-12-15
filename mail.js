@@ -1,5 +1,5 @@
-import IMAP from "node-imap";
 import * as cheerio from "cheerio";
+import IMAP from "node-imap";
 import quotedPrintable from "quoted-printable";
 import { dateFormat, dollarFormat } from "./index.js";
 

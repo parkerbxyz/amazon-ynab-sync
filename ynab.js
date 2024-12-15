@@ -182,7 +182,7 @@ export default class YNAB {
 
   matchAndUpdate = async (orders) => {
     const matches = this.matchTransactions(orders);
-    if (matches.length > 0) {
+    if (matches && matches.length > 0) {
       await this.updateTransactions(matches);
       console.log(
         `Status: ${this.getCachedTransactionCount()} Amazon transactions cached, ${

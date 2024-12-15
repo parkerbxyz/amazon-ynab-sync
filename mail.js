@@ -163,8 +163,8 @@ export const historicalSearch = async (imap, ynab, box, orders) =>
             const email = await readEmail(imapMsg, false);
             if (isAmazonEmail(email)) amazonMsgSeqNums.push(seqno);
             processedEmails++;
-            console.log(
-              `${processedEmails} emails collected... Limit: ${HISTORICAL_SEARCH_NUM_EMAILS}`
+            process.stdout.write(
+              `\r${processedEmails} emails collected... Limit: ${HISTORICAL_SEARCH_NUM_EMAILS}`
             );
             resolve();
           } catch (e) {
@@ -181,6 +181,7 @@ export const historicalSearch = async (imap, ynab, box, orders) =>
 
     fetch.once("end", async () => {
       await Promise.allSettled(emailFetches);
+      process.stdout.write("\n");
 
       const amazonEmailCount = amazonMsgSeqNums.length;
       console.info(

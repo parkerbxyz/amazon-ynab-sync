@@ -28,7 +28,12 @@ const scanEmail = (email) => {
 
   try {
     const amount = parseFloat(
-      $('td:contains("Order Total:")').next("td").find("span").text().trim().slice(1)
+      $('td:contains("Order Total:")')
+        .next("td")
+        .find("span")
+        .text()
+        .trim()
+        .slice(1)
     );
 
     if (amount === 0) return;
